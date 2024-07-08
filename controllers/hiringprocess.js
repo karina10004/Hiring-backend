@@ -1,4 +1,4 @@
-const HiringProcess = require("../models/hiringProcess");
+const { HiringProcess } = require("../models/schema.js");
 exports.createHiringProcess = async (req, res) => {
   try {
     const { title, desc, numRounds, startDate, endDate, companyId } = req.body;
@@ -13,12 +13,10 @@ exports.createHiringProcess = async (req, res) => {
     });
 
     await newHiringProcess.save();
-    res
-      .status(201)
-      .json({
-        message: "Hiring process created successfully",
-        hiringProcess: newHiringProcess,
-      });
+    res.status(201).json({
+      message: "Hiring process created successfully",
+      hiringProcess: newHiringProcess,
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -34,11 +32,9 @@ exports.updateHiringProcessByCompany = async (req, res) => {
       return res.status(404).json({ error: "Hiring process not found" });
     }
     if (hiringProcess.companyId.toString() !== companyId) {
-      return res
-        .status(403)
-        .json({
-          error: "You are not authorized to update this hiring process",
-        });
+      return res.status(403).json({
+        error: "You are not authorized to update this hiring process",
+      });
     }
     hiringProcess.title = title;
     hiringProcess.desc = desc;
@@ -64,12 +60,10 @@ exports.addCodingRound = async (req, res) => {
       return res.status(404).json({ error: "Hiring process not found" });
     }
     if (hiringProcess.companyId.toString() !== companyId) {
-      return res
-        .status(403)
-        .json({
-          error:
-            "You are not authorized to add a coding round to this hiring process",
-        });
+      return res.status(403).json({
+        error:
+          "You are not authorized to add a coding round to this hiring process",
+      });
     }
 
     const newCodingRound = new CodingRound({
@@ -133,11 +127,9 @@ exports.updateInterviewRound = async (req, res) => {
       interviewRound.hiringProcessId
     );
     if (hiringProcess.companyId.toString() !== companyId) {
-      return res
-        .status(403)
-        .json({
-          error: "You are not authorized to update this interview round",
-        });
+      return res.status(403).json({
+        error: "You are not authorized to update this interview round",
+      });
     }
 
     if (startDate) interviewRound.startDate = startDate;

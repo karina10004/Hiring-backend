@@ -1,20 +1,18 @@
 const express = require("express");
 const router = express.Router();
-const hiringprocess = require("../controllers/hiringprocess");
-const authenticateCompany = require("../middleware/companyauthentication");
 const {
+  updateHiringProcessByCompany,
   createHiringProcess,
-} = require("./controllers/hiringProcessController");
-const { addCodingRound } = require("./controllers/codingRoundController");
-const { updateCodingRound } = require("./controllers/codingRoundController");
-const {
+  addCodingRound,
   updateInterviewRound,
-} = require("./controllers/interviewRoundController");
+  updateCodingRound,
+} = require("../controllers/hiringprocess");
+const authenticateCompany = require("../middleware/companyauthentication");
 
 router.put(
   "/hiring-processes/:id",
   authenticateCompany,
-  hiringprocess.updateHiringProcessByCompany
+  updateHiringProcessByCompany
 );
 router.put("/hiring-process/:id", updateHiringProcessByCompany);
 router.post("/hiring-process", createHiringProcess);
