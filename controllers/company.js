@@ -1,7 +1,9 @@
 const { Company } = require("../models/schema");
-exports.registerCompany = async (req, res) => {
+
+const registerCompany = async (req, res) => {
   try {
     const { name, desc, username, password, logoUrl, location } = req.body;
+
     const existingCompany = await Company.findOne({ username });
     if (existingCompany) {
       return res.status(400).json({ error: "Username already exists" });
@@ -20,7 +22,8 @@ exports.registerCompany = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-exports.loginCompany = async (req, res) => {
+
+const loginCompany = async (req, res) => {
   try {
     const { username, password } = req.body;
     const company = await Company.findOne({ username });
@@ -32,7 +35,8 @@ exports.loginCompany = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-exports.updateCompany = async (req, res) => {
+
+const updateCompany = async (req, res) => {
   try {
     const { id } = req.params;
     const { name, desc, logoUrl, location } = req.body;
@@ -50,34 +54,38 @@ exports.updateCompany = async (req, res) => {
   }
 };
 
-exports.getCompanyById = async (req, res) => {
+const getCompanyById = async (req, res) => {
   try {
     const { id } = req.params;
     const company = await Company.findById(id);
-
     if (!company) {
       return res.status(404).json({ error: "Company not found" });
     }
-
     res.status(200).json(company);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-exports.searchCompaniesByName = async (req, res) => {
+const searchCompaniesByName = async (req, res) => {
   try {
     const { name } = req.query;
     const companies = await Company.find({
       name: { $regex: name, $options: "i" },
     });
-
     if (companies.length === 0) {
       return res.status(404).json({ error: "No companies found" });
     }
-
     res.status(200).json(companies);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+};
+
+module.exports = {
+  registerCompany,
+  loginCompany,
+  updateCompany,
+  getCompanyById,
+  searchCompaniesByName,
 };

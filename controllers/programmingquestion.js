@@ -1,4 +1,4 @@
-const ProgrammingQuestion = require("../models/ProgrammingQuestion");
+const { ProgrammingQuestion } = require("../models/schema");
 
 const createQuestion = async (req, res) => {
   try {
