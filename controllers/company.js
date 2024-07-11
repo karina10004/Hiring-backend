@@ -1,9 +1,9 @@
 const { Company } = require("../models/schema");
+const jwt = require("jsonwebtoken");
 
 const registerCompany = async (req, res) => {
   try {
     const { name, desc, username, password, logoUrl, location } = req.body;
-
     const existingCompany = await Company.findOne({ username });
     if (existingCompany) {
       return res.status(400).json({ error: "Username already exists" });
@@ -22,7 +22,6 @@ const registerCompany = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
 const loginCompany = async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -30,12 +29,20 @@ const loginCompany = async (req, res) => {
     if (!company || company.password !== password) {
       return res.status(400).json({ error: "Invalid username or password" });
     }
-    res.status(200).json({ message: "Login successful" });
+
+    const token = jwt.sign(
+      {
+        username: company.username,
+        id: company.id,
+      },
+      "karina"
+    );
+
+    res.status(200).json({ message: "Login successful", access_token: token });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
-
 const updateCompany = async (req, res) => {
   try {
     const { id } = req.params;
@@ -53,7 +60,6 @@ const updateCompany = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
 const getCompanyById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -66,7 +72,6 @@ const getCompanyById = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
 const searchCompaniesByName = async (req, res) => {
   try {
     const { name } = req.query;
@@ -81,7 +86,6 @@ const searchCompaniesByName = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
 module.exports = {
   registerCompany,
   loginCompany,

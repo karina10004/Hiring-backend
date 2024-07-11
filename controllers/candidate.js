@@ -1,9 +1,7 @@
 const { Candidate } = require("../models/schema");
-
 const registerCandidate = async (req, res) => {
   const { name, username, password, email, university, address, resumeUrl } =
     req.body;
-
   try {
     const existingCandidate = await Candidate.findOne({
       $or: [{ username }, { email }],
@@ -22,27 +20,27 @@ const registerCandidate = async (req, res) => {
       address,
       resumeUrl,
     });
-
     const savedCandidate = await candidate.save();
     res.status(201).json({ candidate: savedCandidate });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
-
 const loginCandidate = async (req, res) => {
-  const { username, password } = req.body;
+  const { email, password } = req.body;
   try {
-    const candidate = await Candidate.findOne({ username, password });
+    const candidate = await Candidate.findOne({ email });
     if (!candidate) {
       return res.status(404).json({ error: "Candidate not found" });
     }
-    res.status(200).json({ candidate });
+    if (candidate.password != password) {
+      return res.status(404).json({ error: "incorrect password" });
+    }
+    res.status(200).json(candidate);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
-
 const updateCandidate = async (req, res) => {
   const { id: candidateId } = req.params;
   try {
@@ -61,7 +59,6 @@ const updateCandidate = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
 const getCandidateById = async (req, res) => {
   const { id: candidateId } = req.params;
   try {
@@ -76,7 +73,6 @@ const getCandidateById = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
 module.exports = {
   registerCandidate,
   loginCandidate,

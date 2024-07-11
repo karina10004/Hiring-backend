@@ -41,14 +41,20 @@ const hiringProcessSchema = new mongoose.Schema(
     interviewRounds: [
       { type: mongoose.Schema.Types.ObjectId, ref: "InterviewRound" },
     ],
+    registrationLink: {
+      type: String,
+      unique: true,
+      required: true,
+    },
   },
   { timestamps: true }
 );
 const codingRoundSchema = new mongoose.Schema(
   {
     numQuestions: { type: Number, required: true },
-    startDate: { type: Date, required: true },
-    endDate: { type: Date, required: true },
+    date: { type: Date, required: true },
+    startTime: { type: String, required: true },
+    endTime: { type: String, required: true },
     questions: [
       { type: mongoose.Schema.Types.ObjectId, ref: "ProgrammingQuestion" },
     ],
@@ -85,13 +91,24 @@ const programmingQuestionSchema = new mongoose.Schema(
     constraints: { type: String, required: true },
     example: { type: String, required: true },
     languages: {
-      type: String,
+      type: [String],
       enum: ["c++", "java", "python"],
       required: true,
     },
-    testcases: { type: [String], required: true },
-    expectedOutput: { type: [String], required: true },
-    numHiddenTestcases: { type: Number, required: true },
+    testcases: [
+      {
+        input: { type: String, required: true },
+        expectedOutput: { type: String, required: true },
+        isHidden: { type: Boolean, default: false },
+      },
+    ],
+    timeLimit: { type: Number, required: true },
+    memoryLimit: { type: Number, required: true },
+    codingRoundId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "CodingRound",
+      required: true,
+    },
   },
   { timestamps: true }
 );

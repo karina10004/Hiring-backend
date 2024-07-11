@@ -1,9 +1,13 @@
 const { HiringProcess } = require("../models/schema.js");
+const crypto = require("crypto");
 
 const createHiringProcess = async (req, res) => {
   try {
-    const { title, desc, numRounds, startDate, endDate, companyId } = req.body;
+    const { title, desc, numRounds, startDate, endDate } = req.body;
+    const { companyId } = req.params;
+    const token = crypto.randomBytes(20).toString("hex");
 
+    // console.log(companyId);
     const newHiringProcess = new HiringProcess({
       title,
       desc,
@@ -11,7 +15,9 @@ const createHiringProcess = async (req, res) => {
       startDate,
       endDate,
       companyId,
+      registrationLink: token,
     });
+
     await newHiringProcess.save();
     res.status(201).json({
       message: "Hiring process created successfully",
@@ -21,7 +27,6 @@ const createHiringProcess = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
 const updateHiringProcess = async (req, res) => {
   try {
     const { id } = req.params;
@@ -47,7 +52,6 @@ const updateHiringProcess = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
 const getHiringProcess = async (req, res) => {
   try {
     const { id, companyId } = req.params;
@@ -63,7 +67,6 @@ const getHiringProcess = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
-
 module.exports = {
   getHiringProcess,
   updateHiringProcess,

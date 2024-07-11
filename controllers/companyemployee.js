@@ -1,4 +1,4 @@
-const CompanyEmployee = require("../models/schema");
+const { CompanyEmployee } = require("../models/schema");
 const getEmployeeById = async (req, res) => {
   try {
     const employee = await CompanyEmployee.findById(req.params.id);
@@ -10,7 +10,6 @@ const getEmployeeById = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
 const getAllEmployees = async (req, res) => {
   try {
     const employees = await CompanyEmployee.find();
@@ -19,7 +18,6 @@ const getAllEmployees = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
 const createEmployee = async (req, res) => {
   const { name, position, email, companyId } = req.body;
   const newEmployee = new CompanyEmployee({
@@ -28,7 +26,6 @@ const createEmployee = async (req, res) => {
     email,
     companyId,
   });
-
   try {
     const savedEmployee = await newEmployee.save();
     res.status(201).json(savedEmployee);
