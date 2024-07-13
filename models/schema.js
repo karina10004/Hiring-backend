@@ -90,9 +90,10 @@ const programmingQuestionSchema = new mongoose.Schema(
     desc: { type: String, required: true },
     constraints: { type: String, required: true },
     example: { type: String, required: true },
+    score: { type: Number, required: true },
     languages: {
       type: [String],
-      enum: ["c++", "java", "python"],
+      enum: ["cpp", "java", "python"],
       required: true,
     },
     testcases: [
@@ -100,6 +101,7 @@ const programmingQuestionSchema = new mongoose.Schema(
         input: { type: String, required: true },
         expectedOutput: { type: String, required: true },
         isHidden: { type: Boolean, default: false },
+        weightage: { type: Number, default: 0 },
       },
     ],
     timeLimit: { type: Number, required: true },
@@ -117,6 +119,7 @@ const companyEmployeeSchema = new mongoose.Schema(
     name: { type: String, required: true },
     position: { type: String, required: true },
     email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
     companyId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Company",
@@ -149,6 +152,19 @@ const candidateSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+const interviewSlotSchema = new mongoose.Schema({
+  date: { type: Date, required: true },
+  interviewId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "InterviewRound",
+    required: true,
+  },
+  interviewerId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "CompanyEmployee",
+    required: true,
+  },
+});
 const registrationSchema = new mongoose.Schema(
   {
     candidateId: {
@@ -163,21 +179,10 @@ const registrationSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["registered", "completed", "failed"],
+      enum: ["registered", "completed", "failed", "passed"],
       default: "registered",
     },
-    interviewSlots: [
-      {
-        roundNumber: { type: Number, required: true },
-        startDateTime: { type: Date, required: true },
-        endDateTime: { type: Date, required: true },
-        interviewerId: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "CompanyEmployee",
-          required: true,
-        },
-      },
-    ],
+    interviewSlots: [interviewSlotSchema],
   },
   { timestamps: true }
 );
@@ -191,6 +196,7 @@ const resultSchema = new mongoose.Schema(
     roundId: { type: mongoose.Schema.Types.ObjectId, required: true },
     roundType: { type: String, enum: ["coding", "interview"], required: true },
     score: { type: Number },
+    status: { type: String, enum: ["Pass", "Fail"], required: true },
     feedback: { type: String },
   },
   { timestamps: true }
@@ -203,6 +209,55 @@ resultSchema.virtual("round", {
   foreignField: "_id",
   justOne: true,
 });
+const submissionSchema = new mongoose.Schema(
+  {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    questionId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ProgrammingQuestion",
+      required: true,
+    },
+    submissionTime: {
+      type: Date,
+      default: Date.now,
+      required: true,
+    },
+    code: {
+      type: String,
+      required: true,
+    },
+    language: {
+      type: String,
+      enum: ["cpp", "java", "python"],
+      required: true,
+    },
+    result: {
+      type: String,
+      enum: ["pass", "fail", "partial"],
+      required: true,
+    },
+    testCasesPassed: {
+      type: Number,
+      required: true,
+    },
+    totalTestCases: {
+      type: Number,
+      required: true,
+    },
+    score: {
+      type: Number,
+      required: true,
+    },
+    token: {
+      type: String,
+    },
+  },
+  { timestamps: true }
+);
 module.exports = {
   Company: mongoose.model("Company", companySchema),
   HiringProcess: mongoose.model("HiringProcess", hiringProcessSchema),
@@ -216,4 +271,6 @@ module.exports = {
   Candidate: mongoose.model("Candidate", candidateSchema),
   Registration: mongoose.model("Registration", registrationSchema),
   Result: mongoose.model("Result", resultSchema),
+  Submission: mongoose.model("Submission", submissionSchema),
+  InterviewSlot: mongoose.model("InterviewSlot", interviewSlotSchema),
 };

@@ -1,6 +1,5 @@
 const { Company } = require("../models/schema");
 const jwt = require("jsonwebtoken");
-
 const registerCompany = async (req, res) => {
   try {
     const { name, desc, username, password, logoUrl, location } = req.body;
@@ -29,15 +28,14 @@ const loginCompany = async (req, res) => {
     if (!company || company.password !== password) {
       return res.status(400).json({ error: "Invalid username or password" });
     }
-
     const token = jwt.sign(
       {
         username: company.username,
         id: company.id,
+        type: "company",
       },
       "karina"
     );
-
     res.status(200).json({ message: "Login successful", access_token: token });
   } catch (error) {
     res.status(500).json({ error: error.message });

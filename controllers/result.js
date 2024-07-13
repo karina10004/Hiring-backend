@@ -1,4 +1,5 @@
 const { Result } = require("../models/schema");
+const mongoose = require("mongoose");
 const getAllResults = async (req, res) => {
   try {
     const results = await Result.find();
@@ -28,7 +29,7 @@ const getResultById = async (req, res) => {
   }
 };
 const createResult = async (req, res) => {
-  const { candidateId, roundId, roundType, score, feedback } = req.body;
+  const { candidateId, roundId, roundType, score, feedback, status } = req.body;
 
   try {
     if (!mongoose.isValidObjectId(candidateId)) {
@@ -41,16 +42,22 @@ const createResult = async (req, res) => {
       return res.status(400).json({ message: "Invalid round type" });
     }
 
-    const newResult = new Result({
-      candidateId,
-      roundId,
-      roundType,
-      score,
-      feedback,
-    });
+    const result = await Result.findOne({ candidateId, roundId });
+    if (result) {
+      res.status(201).json(result);
+    } else {
+      const newResult = new Result({
+        candidateId,
+        roundId,
+        roundType,
+        score,
+        feedback,
+        status,
+      });
 
-    const savedResult = await newResult.save();
-    res.status(201).json(savedResult);
+      const savedResult = await newResult.save();
+      res.status(201).json(savedResult);
+    }
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Error creating result" });
@@ -61,5 +68,4 @@ module.exports = {
   getResultById,
   getAllResults,
   createResult,
-  updateResult,
 };
