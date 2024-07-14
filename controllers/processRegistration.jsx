@@ -17,17 +17,24 @@ const createRegistration = async (req, res) => {
       hiringProcessId: hiringProcess._id,
     });
     if (existingRegistration) {
-      return res
-        .status(200)
-        .json({ message: "Candidate already registered for this process" });
+      return res.status(200).json({
+        hiringId: hiringProcess._id,
+        companyId: hiringProcess.companyId,
+      });
     }
+
     const registration = new Registration({
       candidateId: candidateId,
       hiringProcessId: hiringProcess._id,
       status: "registered",
     });
+
     const savedRegistration = await registration.save();
-    res.status(201).json(savedRegistration);
+
+    res.status(201).json({
+      hiringId: hiringProcess._id,
+      companyId: hiringProcess.companyId,
+    });
   } catch (error) {
     console.error("Failed to register candidate:", error);
     res.status(500).json({ message: "Failed to register candidate" });
@@ -76,7 +83,6 @@ const addInterviewSlot = async (req, res) => {
     res.status(500).json({ error: "Failed to add interview slot" });
   }
 };
-
 const updateStatus = async (req, res) => {
   try {
     const { candidateId, hiringId, status } = req.body;
@@ -84,13 +90,11 @@ const updateStatus = async (req, res) => {
       { candidateId, hiringProcessId: hiringId },
       { status: status == "Failed" ? "failed" : "passed" }
     );
-
     res.status(200).json("updated successfuly");
   } catch (error) {
     res.status(400).json(error);
   }
 };
-
 module.exports = {
   createRegistration,
   getRegistrationsForProcess,

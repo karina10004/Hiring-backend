@@ -15,11 +15,8 @@ const programmingQuestionRouter = require("./routes/programmingquestion");
 const processRegistrationRouter = require("./routes/processRegistration");
 const submissionRouter = require("./routes/submission");
 const resultRouter = require("./routes/result");
-
 const { Candidate } = require("./models/schema");
-
 dotenv.config();
-
 const app = express();
 const server = http.createServer(app);
 const io = socketIO(server, {
@@ -30,28 +27,23 @@ const io = socketIO(server, {
 });
 const emailToSocketIdMap = new Map();
 const socketidToEmailMap = new Map();
-
 io.on("connection", (socket) => {
   socket.on("interviewer:join:room", ({ interviewId }) => {
     socket.join(interviewId);
     io.to(socket.id).emit("interviewer:room:joined", { id: socket.id });
   });
-
   socket.on("candidate:join:room", ({ interviewId, candidateId }) => {
     socket.join(interviewId);
     io.to(socket.id).emit("joined:room", { socketId: socket.id });
     io.to(interviewId).emit("candidate:join:room", { candidateId });
   });
-
   socket.on("candidate:leave:room", ({ interviewId }) => {
     socket.leave(interviewId);
     io.to(interviewId).emit("candidate:leave:room", { candidateId: socket.id });
   });
-
   socket.on("call:candidate", ({ interviewId, candidateId, remotePeerId }) => {
     io.to(interviewId).emit("call:request", { candidateId, remotePeerId });
   });
-
   socket.on("call:accepted", ({ interviewerSocketId, candidateSocketId }) => {
     io.to(interviewerSocketId).emit("call:accepted", {
       candidateSocketId,
@@ -60,7 +52,10 @@ io.on("connection", (socket) => {
   });
 
   socket.on("call:me", ({ remotePeerId, remoteSocketId }) => {
-    io.to(remoteSocketId).emit("call:me", { remotePeerId });
+    io.to(remoteSocketId).emit("call:me", { remoteSocketId, remotePeerId });
+  });
+  socket.on("id:transfer", ({ remoteSocketId, candidateId }) => {
+    io.to(remoteSocketId).emit("id:transfer", { candidateId });
   });
 });
 
@@ -80,7 +75,6 @@ app.use("/api/question", programmingQuestionRouter);
 app.use("/api/register", processRegistrationRouter);
 app.use("/api/submission", submissionRouter);
 app.use("/api/result", resultRouter);
-
 server.listen(8000, async () => {
   console.log("Server Started at port 8000");
   try {
